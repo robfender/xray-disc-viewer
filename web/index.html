@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>X-ray disc explorer</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main>
+<header><p class="eyebrow">X-RAY TIMING · AN INTERACTIVE VIEW</p><h1 id="title">Loading observation…</h1><p id="description" class="subtitle">Connecting the power spectrum to a simplified accretion disc.</p></header>
+<section class="toolbar" aria-label="Playback and display controls">
+<button id="play" disabled>Play</button><button id="restart" disabled title="Return to the beginning">Restart</button>
+<label>Timeline<select id="timeline"><option value="compacted">Compacted</option><option value="elapsed">With coverage gaps</option></select></label>
+<label>Theme<select id="theme"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+<label>Movie length<select id="duration"><option value="20">20 seconds</option><option value="30" selected>30 seconds</option><option value="60">60 seconds</option><option value="120">120 seconds</option></select></label>
+<label class="toggle"><input id="rotation" type="checkbox" checked> Rotation</label>
+<label class="toggle"><input id="structure" type="checkbox" checked> Azimuthal structure</label>
+<label class="toggle"><input id="events" type="checkbox" checked> Ejections &amp; flare</label>
+<label class="toggle"><input id="sound" type="checkbox"> Sound</label>
+<label>Volume<input id="volume" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Sound volume"></label>
+</section>
+<div class="transport"><input id="seek" type="range" min="0" max="1" step="0.0001" value="0" aria-label="Position in observation"><output id="clock">0 / 30 s</output></div>
+<p id="status" role="status">Loading spectra…</p>
+<section class="spectrum panel" aria-label="Dynamical power spectrum"><canvas id="pds" role="img" aria-label="Dynamical power spectrum: measured frequency versus observation time; brighter pixels represent greater Leahy power"></canvas></section>
+<section class="lower">
+<aside class="notes panel"><h2>From variability to radius</h2><p>Black hole images derived directly from the X-ray power spectrum under the simplified assumption that frequencies correspond to viscous timescales, which map to radii as:</p>
+<div class="equation">r(ν) = r<sub>g</sub> [α (H/R)² / (ν t<sub>g</sub>)]<sup>2/3</sup></div>
+<p class="parameters">t<sub>g</sub> = GM/c³ <span id="model"></span></p>
+<p>The dotted line marks 2 R<sub>G</sub>.</p><p>Stochastic azimuthal structure has been added for aesthetic reasons, and (unlike the radii of emission) is not inferred from the data.</p><p>Rotation has similarly been added but is purely illustrative and set at <span id="rotation-rate">0.01%</span> of the local Keplerian rate.</p>
+<details><summary>Sound and interpretation</summary><p>The full measured spectrum is shifted upward by a fixed factor of 64: a 4–8 Hz QPO becomes 256–512 Hz. Tone amplitude is proportional to √max(P − 2, 0), using one shared gain. The QPO is not given any extra emphasis. Sound holds the last measured spectrum during gaps; these holds are not new measurements. Playback and seeking resume sound only while the movie is playing.</p><p>Disc brightness uses fixed logarithmic scaling, frequency smoothing, and a faint data-present glow. Blue rings illustrate the inferred launch times; their size and speed do not measure jet propagation. Ejection dates carry published uncertainties, shown as shaded bands.</p></details>
+</aside>
+<div class="disc-wrap panel"><canvas id="disc" role="img" aria-label="Disc brightness mapped from the measured power spectrum to viscous radii"></canvas><p id="disc-state"></p></div>
+</section><footer id="sources"></footer>
+</main><script type="module" src="app.js"></script>
+</body></html>

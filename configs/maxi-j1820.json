@@ -1,0 +1,16 @@
+{
+  "title": "MAXI J1820+070",
+  "description": "The X-ray power spectrum, mapped to a viscous-timescale disc.",
+  "input_files": ["../../Rob_files/pds_1200120197_16s_1024Hz_ch30-1200.tra.fits", "../../Rob_files/pds_1200120198_16s_1024Hz_ch30-1200.tra.fits"],
+  "columns": {"power": "POWER", "time": "TIME", "spectrum": "SPECTRUM", "detectors": "NUM_FPM"},
+  "time_unit": "mjd", "segment_seconds": 16, "rebin": 8, "frequency_bins": 160,
+  "clean_rows": 2848, "end_compacted_seconds": 30000,
+  "background_filter": {"channels": [1300, 1500], "maximum": 0.035, "timebin_header": "TIMEBIN"},
+  "model": {"mass_solar": 7, "alpha": 0.1, "h_over_r": 0.1, "rotation_fraction": 0.0001, "minimum_disc_hz": 1, "smoothing_bins": 4, "log_scale": 2, "excess_floor": 1, "quiet_glow": 0.06, "azimuthal_variation": 0.18},
+  "events": [
+    {"label": "Slow ejection A", "mjd": 58305.60, "uncertainty_days": 0.04, "color": "#46b8ff", "pulse": "slow"},
+    {"label": "Radio flare rise", "mjd": 58305.773, "uncertainty_days": 0.006, "color": "#54c987"},
+    {"label": "Fast ejection C / flare peak", "mjd": 58305.97, "uncertainty_days": 0.02, "color": "#ff6b61", "pulse": "fast"}
+  ],
+  "sources": ["Homan et al. (2020), ApJL 891 L29", "Wood et al. (2021), jet-ejection and radio-flare times"]
+}
