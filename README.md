@@ -56,4 +56,17 @@ Each entry in `modes.compacted` and `modes.elapsed` contains `times` (axis cente
 
 ## Publish
 
-The included GitHub Actions workflow deploys only `web/` to GitHub Pages on pushes to `main`. Enable Pages with source **GitHub Actions** in repository settings. The repository needs no credentials in its files; the deployment uses GitHub's short-lived Actions token. Generated spectra are public on the site, while raw FITS paths in the example config describe local files that are not committed.
+The included GitHub Actions workflow builds versioned assets from `web/` and deploys only `dist/` to GitHub Pages on pushes to `main`. Enable Pages with source **GitHub Actions** in repository settings. The repository needs no credentials in its files; the deployment uses GitHub's short-lived Actions token. Generated spectra are public on the site, while raw FITS paths in the example config describe local files that are not committed.
+
+
+## Audio controls and updates
+
+Bass attenuation acts only below 2 Hz in source units (below 128 Hz after the 64× shift), with full attenuation below 0.5 Hz. Its effect on total hiss may be small, especially through speakers with little bass response. Broadband noise rejection is the control that removes statistical noise across the measured frequency range. The live readout reports the options acknowledged by the running AudioWorklet, plus its predicted RMS level before the volume control. Both input and change events apply settings immediately, including while paused (sound remains muted while paused).
+
+`tools/build_site.py` produces a content-addressed `dist/` directory for deployment. Filenames of the app, its modules, the worklet and its synthesis dependency, CSS, and data all change when their content/dependencies change. This prevents mixed cached versions after a deployment. The workflow deploys `dist/`. Run `python3 tools/build_site.py` locally to preview the deployed artifact.
+
+## Download the selected movie
+
+Choose your settings, then click **Download video**. The browser records a complete run from the beginning at 1600×1200 and up to 24 frames per second, including both scientific panels, explanatory text, settings, and sound if enabled. It takes the selected playback duration in real time. Keep the tab visible; hiding it cancels export rather than generating an incomplete or frozen movie. Controls are locked during recording; the same button cancels recording. On completion the prior seek position is restored with playback paused, and the video downloads automatically. Actual frame rate/timing depends on browser load.
+
+MP4/H.264/AAC is preferred when supported by the browser's MediaRecorder; otherwise WebM/VP9 or VP8/Opus is used. No files are uploaded, and no backend or external encoding service is required. The recording reuses the same live scientific rendering and audio engine as the page. A dedicated fixed-size canvas renders the movie independently of mobile/desktop viewport dimensions.

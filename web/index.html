@@ -5,6 +5,7 @@
 <main>
 <header><p class="eyebrow">X-RAY TIMING · AN INTERACTIVE VIEW</p><h1 id="title">Loading observation…</h1><p id="description" class="subtitle">Connecting the power spectrum to a simplified accretion disc.</p></header>
 <section class="toolbar" aria-label="Playback and display controls">
+<button id="download" disabled>Download video</button>
 <button id="play" disabled>Play</button><button id="restart" disabled title="Return to the beginning">Restart</button>
 <label>Timeline<select id="timeline"><option value="compacted">Compacted</option><option value="elapsed">With coverage gaps</option></select></label>
 <label>Theme<select id="theme"><option value="dark">Dark</option><option value="light">Light</option></select></label>
@@ -14,10 +15,12 @@
 <label class="toggle"><input id="events" type="checkbox" checked> Ejections &amp; flare</label>
 <label class="toggle"><input id="sound" type="checkbox"> Sound</label>
 <label>Volume<input id="volume" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Sound volume"></label>
-<label>Low-frequency attenuation<select id="low-noise"><option value="0">0 dB (unaltered)</option><option value="6">6 dB</option><option value="12" selected>12 dB</option><option value="18">18 dB</option><option value="24">24 dB</option></select></label>
-<label>Noise rejection<select id="noise-rejection"><option value="0">Off (raw excess)</option><option value="1">Gentle (1σ)</option><option value="2">Medium (2σ)</option><option value="3" selected>Strong (3σ)</option></select></label>
+<label>Bass attenuation (&lt;2 Hz source)<select id="low-noise"><option value="0">0 dB (unaltered)</option><option value="6">6 dB</option><option value="12" selected>12 dB</option><option value="18">18 dB</option><option value="24">24 dB</option></select></label>
+<label>Broadband noise rejection<select id="noise-rejection"><option value="0">Off (raw excess)</option><option value="1">Gentle (1σ)</option><option value="2">Medium (2σ)</option><option value="3" selected>Strong (3σ)</option></select></label>
 </section>
 <div class="transport"><input id="seek" type="range" min="0" max="1" step="0.0001" value="0" aria-label="Position in observation"><output id="clock">0 / 30 s</output></div>
+<p id="export-status" role="status">Download records the complete selected movie in real time. Keep this tab visible while recording.</p>
+<p id="audio-status" role="status">Sound off</p>
 <p id="status" role="status">Loading spectra…</p>
 <section class="spectrum panel" aria-label="Dynamical power spectrum"><canvas id="pds" role="img" aria-label="Dynamical power spectrum: measured frequency versus observation time; brighter pixels represent greater Leahy power"></canvas></section>
 <section class="lower">
