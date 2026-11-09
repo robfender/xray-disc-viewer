@@ -69,7 +69,8 @@ def export(config_path, output_path):
     payload = dict(schema_version=1, title=c['title'], description=c['description'], model=c['model'],
                    origin_mjd=float(time[0]), bin_seconds=width, frequencies=frequencies.tolist(),
                    disc_frequencies=frequencies[disc_mask].tolist(), modes=modes, events=events,
-                   audio_gain=float(0.12/max(reference, 1e-12)), sources=c.get('sources', []))
+                   audio_gain=float(0.12/max(reference, 1e-12)),
+                   sonification=c.get('sonification', {'minimum_frequency_hz': 0.3}), sources=c.get('sources', []))
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, separators=(',', ':'), allow_nan=False))

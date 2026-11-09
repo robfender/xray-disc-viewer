@@ -18,7 +18,7 @@ No additional 2π enters this mapping; the Keplerian orbital frequency in cycles
 
 Disc brightness follows the existing movie's Gaussian frequency smoothing (σ = 4 bins), lower frequency cut (1 Hz), excess floor, fixed logarithmic scale, faint quiet-state glow, and EHT-inspired palette. Brightness is not normalized separately per frame. Texture uses a deterministic random field smoothed in radius and azimuth; rotation is 0.01% of local Keplerian rate. Canvas rendering is an interactive reconstruction, not a pixel-identical playback of the Python MP4.
 
-Sonification uses all 160 PDS bins before the disc-only smoothing/cut. Frequencies are multiplied by 64 (4–8 Hz → 256–512 Hz). Amplitudes are proportional to sqrt(max(Leahy power − 2, 0)); this simple noise subtraction with clipping is not an unbiased estimator of intrinsic power at low signal. One dataset-wide gain is shared between both timelines; no per-frame gain or special QPO tone is used. Browser gain transitions are smoothed over 25 ms. Volume is a separate user control. The lowest shifted frequencies remain below typical hearing.
+Sonification uses the PDS before the disc-only smoothing/cut, with source frequencies below 0.3 Hz muted. For this observation that suppresses the first four bins (0.0625–0.25 Hz), which would otherwise become 4–16 Hz tones. The cutoff is set with `sonification.minimum_frequency_hz` in the dataset configuration; older exports default to 0.3 Hz. The fixed shared gain is retained after this cut. Frequencies are multiplied by 64 (4–8 Hz → 256–512 Hz). Amplitudes are proportional to sqrt(max(Leahy power − 2, 0)); this simple noise subtraction with clipping is not an unbiased estimator of intrinsic power at low signal. One dataset-wide gain is shared between both timelines; no per-frame gain or special QPO tone is used. Browser gain transitions are smoothed over 25 ms. Volume is a separate user control. The lowest retained tone for this observation is 20 Hz (0.3125 Hz × 64).
 
 Blue ejection rings are visual annotations. Their expansion, size, brightness, and relative drama do not encode a measured jet velocity or extent. The second launch pulse is deliberately stronger, following the movie design. Published event-date uncertainty bands are shown on the elapsed timeline. Compacted dates are mapped through the clean FITS row indices.
 
@@ -46,7 +46,7 @@ Open http://localhost:8000. ES modules and the dataset fetch require HTTP; openi
 
 ## Dataset contract, version 1
 
-Metadata: title, description, origin_mjd, bin_seconds, model, sources, audio_gain, frequencies, disc_frequencies, events.
+Metadata: title, description, origin_mjd, bin_seconds, model, sources, audio_gain, sonification, frequencies, disc_frequencies, events.
 
 Each entry in `modes.compacted` and `modes.elapsed` contains `times` (axis centers in seconds), `mjd`, `compact` (clean-data coordinate), `power` (time × full frequency), and `disc_power` (time × disc frequency, already smoothed). Arrays are finite; times increase. Events contain an MJD, elapsed/compacted positions, uncertainty in days, label, color, and optional pulse type. The app supports schema version 1 and reports load errors visibly.
 
