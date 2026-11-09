@@ -70,7 +70,7 @@ def export(config_path, output_path):
                    origin_mjd=float(time[0]), bin_seconds=width, frequencies=frequencies.tolist(),
                    disc_frequencies=frequencies[disc_mask].tolist(), modes=modes, events=events,
                    audio_gain=float(0.12/max(reference, 1e-12)),
-                   sonification=c.get('sonification', {'method': 'stochastic_psd', 'low_frequency_attenuation_db': 12, 'flat_extrapolation_bins': 4}), sources=c.get('sources', []))
+                   sonification={**c.get('sonification', {'method': 'stochastic_psd', 'low_frequency_attenuation_db': 12, 'flat_extrapolation_bins': 4, 'noise_rejection_sigma': 3}), 'averaged_periodograms': rebin*c.get('periodograms_per_row', 1)}, sources=c.get('sources', []))
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, separators=(',', ':'), allow_nan=False))

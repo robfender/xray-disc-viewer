@@ -66,6 +66,7 @@
   "sonification": {
     "method": "stochastic_psd",
     "low_frequency_attenuation_db": 12,
-    "flat_extrapolation_bins": 4
+    "flat_extrapolation_bins": 4,
+    "noise_rejection_sigma": 3
   }
 }

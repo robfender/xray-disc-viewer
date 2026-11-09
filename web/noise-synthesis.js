@@ -1,3 +1,25 @@
+// Estimate intrinsic excess before generating random audio. Thresholds are an
+// approximate noise-rejection heuristic, not formal feature significance tests.
+export function estimateSignalPower(powers, {noiseRejectionSigma=3, averagedPeriodograms=8}={}) {
+  if(noiseRejectionSigma===0)return powers.map(p=>Math.max(p-2,0));
+  const result=new Array(powers.length);
+  for(let i=0;i<powers.length;i++) {
+    const weights=new Map();let sum=0;
+    // Gaussian sigma = one frequency bin. Combine duplicated edge weights
+    // before calculating variance, because they refer to the same sample.
+    for(let offset=-3;offset<=3;offset++) {
+      const j=Math.max(0,Math.min(powers.length-1,i+offset));
+      const w=Math.exp(-0.5*offset*offset);
+      weights.set(j,(weights.get(j)||0)+w);sum+=w;
+    }
+    let mean=0,varianceWeight=0;
+    for(const [j,w] of weights){const normalized=w/sum;mean+=normalized*powers[j];varianceWeight+=normalized**2;}
+    const noiseSigma=2*Math.sqrt(varianceWeight/Math.max(averagedPeriodograms,1));
+    result[i]=Math.max(mean-2-noiseRejectionSigma*noiseSigma,0);
+  }
+  return result;
+}
+
 // Continuous stochastic sonification. Each FFT block is new Gaussian noise;
 // overlap-add avoids a periodic bank of coherent, equally spaced tones.
 export class SpectrumNoise {
@@ -10,8 +32,8 @@ export class SpectrumNoise {
     for(let i=0;i<size;i++) this.window[i]=(0.5-0.5*Math.cos(2*Math.PI*i/size))/Math.sqrt(1.5);
   }
   random() {this.seed=(1664525*this.seed+1013904223)>>>0;return (this.seed+0.5)/4294967296;}
-  setSpectrum(frequencies, powers, {shift=64, attenuationDb=12, gain=1, plateauBins=4}={}) {
-    const excess=powers.map(p=>Math.max(p-2,0));
+  setSpectrum(frequencies, powers, {shift=64, attenuationDb=12, gain=1, plateauBins=4, noiseRejectionSigma=3, averagedPeriodograms=8}={}) {
+    const excess=estimateSignalPower(powers,{noiseRejectionSigma,averagedPeriodograms});
     const lowCount=Math.max(1,Math.min(Math.floor(plateauBins),excess.length));
     const plateau=excess.slice(0,lowCount).reduce((a,b)=>a+b,0)/lowCount;
     for(let i=0;i<lowCount;i++)excess[i]=plateau;
