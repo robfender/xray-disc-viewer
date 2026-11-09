@@ -9,7 +9,3 @@ export function brightness(power, model) {const raw=Math.max(power-2,0), excess=
 export function eventPosition(event, mode) {return mode==='elapsed'?event.elapsed_seconds:event.compacted_seconds;}
 export function makeTexture(rows, columns=720, seed=20261015) {let state=seed>>>0;const random=()=>{state=(1664525*state+1013904223)>>>0;return (state+.5)/4294967296;};let raw=new Float32Array(rows*columns);for(let i=0;i<raw.length;i++)raw[i]=Math.sqrt(-2*Math.log(random()))*Math.cos(2*Math.PI*random());const angular=new Float32Array(raw.length),out=new Float32Array(raw.length);for(let r=0;r<rows;r++)for(let a=0;a<columns;a++){let sum=0,weight=0;for(let k=-12;k<=12;k++){const w=Math.exp(-.5*(k/4)**2);sum+=w*raw[r*columns+(a+k+columns)%columns];weight+=w;}angular[r*columns+a]=sum/weight;}for(let r=0;r<rows;r++){let square=0;for(let a=0;a<columns;a++){let sum=0,weight=0;for(let k=-5;k<=5;k++){const w=Math.exp(-.5*(k/1.5)**2);sum+=w*angular[clamp(r+k,0,rows-1)*columns+a];weight+=w;}const value=sum/weight;out[r*columns+a]=value;square+=value*value;}const sigma=Math.sqrt(square/columns)||1;for(let a=0;a<columns;a++)out[r*columns+a]=clamp(out[r*columns+a]/sigma,-2,2);}return out;}
 
-// Suppress low edge bins before the audible frequency shift. Keep the shared gain.
-export function sonificationAmplitude(power, frequency, minimumFrequencyHz=0.3) {
-  return frequency < minimumFrequencyHz ? 0 : Math.sqrt(Math.max(power - 2, 0));
-}

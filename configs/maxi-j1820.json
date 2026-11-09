@@ -64,6 +64,8 @@
     "Wood et al. (2021), jet-ejection and radio-flare times"
   ],
   "sonification": {
-    "minimum_frequency_hz": 0.3
+    "method": "stochastic_psd",
+    "low_frequency_attenuation_db": 12,
+    "flat_extrapolation_bins": 4
   }
 }
