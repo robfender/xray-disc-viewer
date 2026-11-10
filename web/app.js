@@ -1,4 +1,5 @@
 import {clamp, domain, snapshot, radiusForFrequency, brightness, eventPosition, makeTexture} from './model.js';
+import {drawEjecta} from './jets.js';
 import {VideoExport} from './video-export.js';
 const $=id=>document.getElementById(id), ui=Object.fromEntries(['play','restart','timeline','theme','duration','rotation','structure','events','sound','volume','low-noise','noise-rejection','seek','clock','status','pds','disc','disc-state','audio-status','download','export-status'].map(id=>[id,$(id)]));
 let data, playing=false, progress=0, lastTime=0, dirty=true, pdsCaches=new WeakMap(), texture, geometry, image, audio, noiseNode, audioKey="", master, recording, recordingState, recordingDestination, appliedAudio;
@@ -14,8 +15,20 @@ for(let k=0;k<100;k++){const shade=Math.round((s.dark?k/99:1-k/99)*255);ctx.fill
 if(ui.events.checked){for(const e of data.events){const ex=eventPosition(e,ui.timeline.value);if(ex<lo||ex>hi)continue;const x=left+(ex-lo)/(hi-lo)*pw,unc=e.uncertainty_days*86400/(hi-lo)*pw;ctx.save();ctx.beginPath();ctx.rect(left,top,pw,ph);ctx.clip();ctx.globalAlpha=.1;ctx.fillStyle=e.color;if(ui.timeline.value==='elapsed')ctx.fillRect(x-unc,top,unc*2,ph);ctx.globalAlpha=.95;ctx.strokeStyle=e.color;ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,top+ph);ctx.stroke();ctx.translate(x+12,top+7);ctx.rotate(Math.PI/2);ctx.font='11px system-ui';ctx.textAlign='left';ctx.fillText(e.label,0,0);ctx.restore();}}
 ctx.strokeStyle='#ee6b72';ctx.beginPath();ctx.moveTo(left+pw*progress,top);ctx.lineTo(left+pw*progress,top+ph);ctx.stroke();}
 function drawDisc(state,target=ui.disc){const mode=ui.timeline.value,m=data.modes[mode],model=data.model,f=data.disc_frequencies,power=m.disc_power[state.index],values=power.map(v=>brightness(v,model)),duration=+ui.duration.value;const time=mode==='elapsed'?state.index/Math.max(m.times.length-1,1)*duration:progress*duration,phases=f.map(v=>ui.rotation.checked?v/(2*Math.PI*model.alpha*model.h_over_r**2)*time*model.rotation_fraction*A:0);const pixels=image.data;for(let i=0;i<N*N;i++){const r=geometry.radial[i],offset=i*4;pixels[offset+3]=255;if(r<0){pixels[offset]=pixels[offset+1]=pixels[offset+2]=0;continue;}const a=Math.floor(r),b=Math.min(a+1,f.length-1),mix=r-a;let value=values[a]*(1-mix)+values[b]*mix;if(ui.structure.checked){const sample=row=>{const angle=((geometry.angle[i]-phases[row])%A+A)%A,k=Math.floor(angle),fract=angle-k;return texture[row*A+k]*(1-fract)+texture[row*A+(k+1)%A]*fract;};value*=clamp(1+model.azimuthal_variation*(sample(a)*(1-mix)+sample(b)*mix),0,2);}const ci=Math.round(clamp(value)*255)*3;pixels[offset]=colors[ci];pixels[offset+1]=colors[ci+1];pixels[offset+2]=colors[ci+2];}rasterCtx.putImageData(image,0,0);
-const {ctx,w,h}=setupCanvas(target),s=style(),pad=50,size=Math.min(w-pad-12,h-pad-12),x=pad+(w-pad-12-size)/2,y=10,centreX=x+size/2,centreY=y+size/2,scale=size/(2*geometry.extent);ctx.fillStyle=s.bg;ctx.fillRect(0,0,w,h);ctx.drawImage(raster,x,y,size,size);ctx.strokeStyle=s.muted;ctx.lineWidth=1;ctx.strokeRect(x,y,size,size);ctx.font='12px system-ui';ctx.fillStyle=s.fg;for(const tick of [-10,0,10]){if(Math.abs(tick)>geometry.extent)continue;ctx.textAlign='center';ctx.fillText(tick,centreX+tick*scale,y+size+20);ctx.textAlign='right';ctx.fillText(tick,x-8,centreY-tick*scale+4);}ctx.textAlign='center';ctx.fillText('Radius (r_g = GM/c²)',centreX,y+size+42);ctx.save();ctx.translate(13,centreY);ctx.rotate(-Math.PI/2);ctx.fillText('Radius (r_g)',0,0);ctx.restore();ctx.strokeStyle='#fffdf8';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(centreX,centreY,2*scale,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);
-if(ui.events.checked){const [lo,hi]=domain(data,mode);for(const event of data.events.filter(e=>e.pulse)){const launch=(eventPosition(event,mode)-lo)/(hi-lo)*duration,age=progress*duration-launch,fast=event.pulse==='fast',life=fast?2.25:1.25;if(age<0||age>life)continue;const p=age/life,radius=(3+(fast?7:3)*p)*scale;ctx.save();ctx.beginPath();ctx.rect(x,y,size,size);ctx.clip();ctx.shadowColor='#168eff';ctx.shadowBlur=fast?22:13;ctx.strokeStyle=`rgba(100,220,255,${(1-p)*(fast?1:.9)})`;ctx.lineWidth=(fast?7:5)*(1-.45*p);ctx.beginPath();ctx.arc(centreX,centreY,radius,0,Math.PI*2);ctx.stroke();ctx.restore();}}
+const {ctx,w,h}=setupCanvas(target),s=style(),pad=50,size=Math.min(w-pad-12,h-pad-36),x=pad+(w-pad-12-size)/2,y=30,centreX=x+size/2,centreY=y+size/2,scale=size/(2*geometry.extent);
+const inclination=30,foreshortening=Math.cos(inclination*Math.PI/180);
+ctx.fillStyle=s.bg;ctx.fillRect(0,0,w,h);ctx.fillStyle='#000';ctx.fillRect(x,y,size,size);
+ctx.save();ctx.translate(centreX,centreY);ctx.scale(1,foreshortening);ctx.drawImage(raster,-size/2,-size/2,size,size);ctx.restore();
+ctx.strokeStyle=s.muted;ctx.lineWidth=1;ctx.strokeRect(x,y,size,size);ctx.font='12px system-ui';ctx.fillStyle=s.fg;
+for(const tick of [-10,0,10]){if(Math.abs(tick)>geometry.extent)continue;ctx.textAlign='center';ctx.fillText(tick,centreX+tick*scale,y+size+20);ctx.textAlign='right';ctx.fillText(tick,x-8,centreY-tick*scale*foreshortening+4);}
+ctx.textAlign='center';ctx.fillText('Disc-plane x (r_g = GM/c²)',centreX,y+size+42);
+ctx.save();ctx.translate(13,centreY);ctx.rotate(-Math.PI/2);ctx.fillText('Disc-plane y (r_g)',0,0);ctx.restore();
+ctx.font=`${w<400?10:12}px system-ui`;ctx.fillStyle=s.muted;ctx.fillText('30° view · jet motion illustrative, not to radius scale',centreX,16);
+ctx.strokeStyle='#fffdf8';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();ctx.ellipse(centreX,centreY,2*scale,2*scale*foreshortening,0,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);
+if(ui.events.checked){const [lo,hi]=domain(data,mode);for(const event of data.events.filter(e=>e.pulse)){
+  const launch=(eventPosition(event,mode)-lo)/(hi-lo)*duration;
+  drawEjecta(ctx,{age:progress*duration-launch,type:event.pulse,inclinationDegrees:inclination,centreX,centreY,outerRadiusPixels:geometry.max*scale,clip:{x,y,size}});
+}}
 ui['disc-state'].textContent=state.gap?'Coverage gap · holding last measured spectrum':`Measured spectrum · MJD ${m.mjd[state.index].toFixed(5)}`;}
 async function ensureAudio(){
   if(audio)return;
@@ -54,7 +67,7 @@ function tick(now){if(playing){if(lastTime)progress=clamp(progress+(now-lastTime
 ui.play.onclick=async()=>{try{if(ui.sound.checked){await ensureAudio();await audio.resume();}if(progress>=1)progress=0;playing=!playing;lastTime=0;ui.play.textContent=playing?'Pause':'Play';dirty=true;}catch(error){ui.status.textContent=error.message;}};
 ui.restart.onclick=()=>{progress=0;dirty=true;};ui.seek.oninput=()=>{progress=+ui.seek.value;dirty=true;};ui.timeline.onchange=()=>{pdsCaches=new WeakMap();dirty=true;};ui.theme.onchange=()=>{document.documentElement.dataset.theme=ui.theme.value;pdsCaches=new WeakMap();dirty=true;};for(const id of ['duration','rotation','structure','events','volume','low-noise','noise-rejection']){const changed=()=>{dirty=true;if(data&&audio)updateAudio(snapshot(data,ui.timeline.value,progress));};ui[id].oninput=changed;ui[id].onchange=changed;}
 ui.sound.onchange=async()=>{try{if(ui.sound.checked){await ensureAudio();await audio.resume();}dirty=true;}catch(error){ui.sound.checked=false;ui.status.textContent=error.message;}};
-function exportSettings(){return [ui.timeline.value==='elapsed'?'With coverage gaps':'Compacted',ui.theme.value,ui.rotation.checked?'Rotation 0.01% Keplerian':'Rotation off',ui.structure.checked?'Azimuthal structure':'Axisymmetric',ui.events.checked?'Events on':'Events off',ui.sound.checked?`Sound · bass −${ui['low-noise'].value} dB · rejection ${ui['noise-rejection'].value}σ · volume ${Math.round(+ui.volume.value*100)}%`:'Silent'].join(' · ');}
+function exportSettings(){return [ui.timeline.value==='elapsed'?'With coverage gaps':'Compacted',ui.theme.value,'Inclination 30°',ui.rotation.checked?'Rotation 0.01% Keplerian':'Rotation off',ui.structure.checked?'Azimuthal structure':'Axisymmetric',ui.events.checked?'Events on':'Events off',ui.sound.checked?`Sound · bass −${ui['low-noise'].value} dB · rejection ${ui['noise-rejection'].value}σ · volume ${Math.round(+ui.volume.value*100)}%`:'Silent'].join(' · ');}
 function restoreAfterRecording(message){
   recording=null;playing=false;progress=recordingState?.progress ?? 0;lastTime=0;
   document.querySelectorAll('.toolbar input,.toolbar select,.toolbar button,#seek').forEach(control=>control.disabled=false);
@@ -73,9 +86,9 @@ ui.download.onclick=async()=>{
       paragraphs:[
         'Images derived from the X-ray power spectrum under the simplified assumption that frequencies correspond to viscous timescales.',
         'r(ν) = r_g [α(H/R)² / (ν t_g)]^(2/3),  t_g = GM/c³.',
-        `M = ${m.mass_solar} M☉; α = ${m.alpha}; H/R = ${m.h_over_r}. The dotted line marks 2 R_G.`,
+        `M = ${m.mass_solar} M☉; α = ${m.alpha}; H/R = ${m.h_over_r}. The dotted ellipse marks 2 R_G in the disc plane.`,
         'Stochastic azimuthal structure is added for aesthetic reasons; unlike the radii of emission, it is not inferred from the data.',
-        'Rotation is illustrative and set at 0.01% of the local Keplerian rate. Blue rings illustrate launch times, not measured jet propagation.',
+        'Rotation is illustrative and set at 0.01% of the local Keplerian rate. The disc is tilted 30° from face-on. Bipolar knots illustrate launch times; jet motion and brightness are not to the disc radius scale.',
         ui.sound.checked?'Audio: stochastic PSD-shaped noise, shifted 64×. Noise rejection may suppress weak real variability. One fixed gain; no separate QPO boost.':'Sound is disabled for this export.',
         data.sources.join(' · ')
       ]});

@@ -14,7 +14,7 @@ The identification is ν = 1/t_visc = α(H/R)² Ω_K. With t_g = GM/c³:
 
     r/r_g = [α(H/R)² / (ν t_g)]^(2/3)
 
-No additional 2π enters this mapping; the Keplerian orbital frequency in cycles per second used for illustrative rotation is ν/[2π α(H/R)²]. Radius units are r_g = GM/c². The dotted circle is at 2 r_g. This simplified mapping is not a claim that the observed Fourier frequencies uniquely identify physical disc radii.
+No additional 2π enters this mapping; the Keplerian orbital frequency in cycles per second used for illustrative rotation is ν/[2π α(H/R)²]. Radius units are r_g = GM/c². The dotted ellipse marks a disc-plane circle at 2 r_g. This simplified mapping is not a claim that the observed Fourier frequencies uniquely identify physical disc radii.
 
 Disc brightness follows the existing movie's Gaussian frequency smoothing (σ = 4 bins), lower frequency cut (1 Hz), excess floor, fixed logarithmic scale, faint quiet-state glow, and EHT-inspired palette. Brightness is not normalized separately per frame. Texture uses a deterministic random field smoothed in radius and azimuth; rotation is 0.01% of local Keplerian rate. Canvas rendering is an interactive reconstruction, not a pixel-identical playback of the Python MP4.
 
@@ -24,7 +24,7 @@ Noise rejection defaults to 3σ. Before synthesis a Gaussian kernel with σ = on
 
 A user-selectable low shelf reduces the continuum by 0, 6, 12 (default), 18, or 24 dB below 0.5 source Hz, easing smoothly to unity at 2 Hz. This is an explicitly disclosed listening weight; QPOs at 4–8 Hz receive no additional gain. Choose 0 dB for the unweighted spectrum. During gaps, the spectral shape holds while independent noise continues. Overlap-add gives a response spread of approximately 0.35 seconds at 48 kHz; 25 ms master-gain ramps mute pause/hidden-tab transitions. AudioWorklet requires HTTPS or localhost in a supporting browser.
 
-Blue ejection rings are visual annotations. Their expansion, size, brightness, and relative drama do not encode a measured jet velocity or extent. The second launch pulse is deliberately stronger, following the movie design. Published event-date uncertainty bands are shown on the elapsed timeline. Compacted dates are mapped through the clean FITS row indices.
+The disc is geometrically projected at 30° from face-on, compressing its vertical direction by cos(30°); the PSD-to-radius mapping and brightness are unchanged. Axes report disc-plane coordinates; y ticks are projected by the same factor. No relativistic ray tracing or Doppler brightness model is applied. The dotted 2 r_g marker is projected with the disc. Bipolar ejection knots travel along the projected normal (the vertical minor axis), with short fading trails and a brief base glow. Their positions use sin(30°) projection but their distance normalization, velocities, size, brightness, and relative drama are illustrative and do not share the measured disc radius scale. The slow ejection lasts 2 movie seconds; the fast event lasts 4 seconds, travels farther, and has brighter, broader knots and trails. The receding knot is dimmer solely as a depth cue. The launch animation continues through gaps, while the data-backed disc holds as before. Published event-date uncertainty bands are shown on the elapsed timeline. Compacted dates are mapped through the clean FITS row indices.
 
 ## Run locally
 
