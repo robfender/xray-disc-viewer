@@ -1,5 +1,6 @@
 import {clamp, domain, snapshot, radiusForFrequency, brightness, eventPosition, makeTexture} from './model.js';
 import {drawEjecta,launchFootprintRadius} from './jets.js';
+import {citationParts} from './citations.js';
 import {VideoExport} from './video-export.js';
 const $=id=>document.getElementById(id), ui=Object.fromEntries(['play','restart','timeline','theme','duration','rotation','structure','events','sound','volume','low-noise','noise-rejection','seek','clock','status','pds','disc','disc-state','audio-status','download','export-status'].map(id=>[id,$(id)]));
 let data, playing=false, progress=0, lastTime=0, dirty=true, pdsCaches=new WeakMap(), texture, geometry, image, audio, noiseNode, audioKey="", master, recording, recordingState, recordingDestination, appliedAudio;
@@ -102,16 +103,24 @@ ui.download.onclick=async()=>{
   }catch(error){if(recording){recording.cancel(error.message);}else restoreAfterRecording('Unable to record: '+error.message);}
 };
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(recording)recording.cancel('Recording cancelled because the tab was hidden. Please keep it visible during export.');playing=false;ui.play.textContent='Play';}lastTime=0;dirty=true;if(data)updateAudio(snapshot(data,ui.timeline.value,progress));});window.addEventListener('resize',()=>{pdsCaches=new WeakMap();dirty=true;});
+function citationNode(text,url){
+  if(url&&new URL(url).protocol==='https:'){
+    const anchor=document.createElement('a');anchor.textContent=text;anchor.href=url;
+    anchor.target='_blank';anchor.rel='noopener noreferrer';return anchor;
+  }
+  return document.createTextNode(text);
+}
+function renderIntroduction(){
+  const introduction=$('description');introduction.replaceChildren();
+  for(const part of citationParts(data.description,data.source_links))introduction.append(citationNode(part.text,part.url));
+}
 function renderReferences(){
   const footer=$('sources');footer.replaceChildren();
   data.sources.forEach((label,index)=>{
     if(index)footer.append(document.createTextNode(' · '));
     const reference=data.source_links?.find(item=>item.label===label);
-    if(reference&&new URL(reference.url).protocol==='https:'){
-      const anchor=document.createElement('a');anchor.textContent=label;anchor.href=reference.url;
-      anchor.target='_blank';anchor.rel='noopener noreferrer';footer.append(anchor);
-    }else footer.append(document.createTextNode(label));
+    footer.append(citationNode(label,reference?.url));
   });
-  footer.append(document.createTextNode('. Scientific sonification and illustrative viscous-timescale mapping.'));
+  footer.append(document.createTextNode('. Created by Rob Fender and ChatGPT'));
 }
-try{const response=await fetch(new URL('./data/dataset.json',import.meta.url));if(!response.ok)throw Error(`Dataset loading failed (${response.status})`);data=await response.json();if(data.schema_version!==1)throw Error('Unsupported dataset format');ui['low-noise'].value=String(data.sonification?.low_frequency_attenuation_db ?? 12);ui['noise-rejection'].value=String(data.sonification?.noise_rejection_sigma ?? 3);$('title').textContent=data.title;document.title=`${data.title} · X-ray disc explorer`;$('description').textContent=data.description;$('model').textContent=`M = ${data.model.mass_solar} M☉ · α = ${data.model.alpha} · H/R = ${data.model.h_over_r}`;$('rotation-rate').textContent=`${data.model.rotation_fraction*100}%`;renderReferences();buildGeometry();ui.play.disabled=ui.restart.disabled=ui.download.disabled=false;render();requestAnimationFrame(tick);}catch(error){ui.status.textContent=`Unable to load visualization: ${error.message}`;console.error(error);}
+try{const response=await fetch(new URL('./data/dataset.json',import.meta.url));if(!response.ok)throw Error(`Dataset loading failed (${response.status})`);data=await response.json();if(data.schema_version!==1)throw Error('Unsupported dataset format');ui['low-noise'].value=String(data.sonification?.low_frequency_attenuation_db ?? 12);ui['noise-rejection'].value=String(data.sonification?.noise_rejection_sigma ?? 3);$('title').textContent=data.title;document.title=`${data.title} · X-ray disc explorer`;renderIntroduction();$('model').textContent=`M = ${data.model.mass_solar} M☉ · α = ${data.model.alpha} · H/R = ${data.model.h_over_r}`;$('rotation-rate').textContent=`${data.model.rotation_fraction*100}%`;renderReferences();buildGeometry();ui.play.disabled=ui.restart.disabled=ui.download.disabled=false;render();requestAnimationFrame(tick);}catch(error){ui.status.textContent=`Unable to load visualization: ${error.message}`;console.error(error);}
