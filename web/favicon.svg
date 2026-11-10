@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Oblique black hole accretion disc</title>
+  <defs>
+    <radialGradient id="disc">
+      <stop offset="0" stop-color="#fff0b5"/>
+      <stop offset=".4" stop-color="#ffd05a"/>
+      <stop offset=".65" stop-color="#f99b25"/>
+      <stop offset=".82" stop-color="#dd4b12"/>
+      <stop offset="1" stop-color="#6d1721"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffb73e"/>
+      <stop offset="1" stop-color="#fff2b3"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="13" fill="#101319"/>
+  <g transform="translate(32 32) rotate(55)">
+    <ellipse rx="26" ry="18" fill="url(#disc)"/>
+    <ellipse rx="20" ry="13.5" fill="none" stroke="#ffbd42" stroke-width="1.5" opacity=".75"/>
+    <ellipse rx="13" ry="9" fill="url(#rim)"/>
+    <ellipse rx="10" ry="7" fill="#030307"/>
+    <path d="M-23 4 C-19 16 19 16 23 4" fill="none" stroke="#ffdf80" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+  </g>
+</svg>

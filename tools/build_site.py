@@ -10,7 +10,7 @@ def build(source, destination):
     source, destination = Path(source).resolve(), Path(destination).resolve()
     destination.mkdir(parents=True, exist_ok=True)
     mapping = {}
-    reference = re.compile(r'''(['"])(\./[^'"\n]+\.(?:js|json)|app\.js|style\.css)\1''')
+    reference = re.compile(r'''(['"])(\./[^'"\n]+\.(?:js|json|svg)|app\.js|style\.css)\1''')
 
     def asset(relative):
         relative = Path(relative)
