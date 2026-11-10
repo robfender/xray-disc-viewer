@@ -50,7 +50,7 @@ Open http://localhost:8000. ES modules and the dataset fetch require HTTP; openi
 
 ## Dataset contract, version 1
 
-Metadata: title, description, origin_mjd, bin_seconds, model, sources, audio_gain, sonification, frequencies, disc_frequencies, events.
+Metadata: title, description, origin_mjd, bin_seconds, model, sources, source_links (optional label/url pairs for linked citations), audio_gain, sonification, frequencies, disc_frequencies, events.
 
 Each entry in `modes.compacted` and `modes.elapsed` contains `times` (axis centers in seconds), `mjd`, `compact` (clean-data coordinate), `power` (time × full frequency), and `disc_power` (time × disc frequency, already smoothed). Arrays are finite; times increase. Events contain an MJD, elapsed/compacted positions, uncertainty in days, label, color, and optional pulse type. The app supports schema version 1 and reports load errors visibly.
 

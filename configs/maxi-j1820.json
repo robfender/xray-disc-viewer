@@ -1,6 +1,6 @@
 {
   "title": "MAXI J1820+070",
-  "description": "The X-ray power spectrum, mapped to a viscous-timescale disc.",
+  "description": "MAXI J1820+070 is a black hole X-ray binary which went into outburst in 2018. Exquisite X-ray observations by Homan et al. (2020) captured the moments when relativistic jets were launched (Wood et al. 2021) which we later observed to propagate to light year scales (Bright et al. 2020, Espinasse et al. 2020). In this visualisation we map the observed X-ray variability to the inner regions of the accretion flow around the black hole under the assumption that they correspond to viscous timescales (more detailed information below) and explicitly indicate when two relativistic ejections occurred (as well as the peak of the observed, associated, radio flare).",
   "input_files": [
     "../../Rob_files/pds_1200120197_16s_1024Hz_ch30-1200.tra.fits",
     "../../Rob_files/pds_1200120198_16s_1024Hz_ch30-1200.tra.fits"
@@ -60,14 +60,33 @@
     }
   ],
   "sources": [
-    "Homan et al. (2020), ApJL 891 L29",
-    "Wood et al. (2021), jet-ejection and radio-flare times",
-    "Bright et al. (2020)"
+    "Homan et al. (2020)",
+    "Wood et al. (2021)",
+    "Bright et al. (2020)",
+    "Espinasse et al. (2020)"
   ],
   "sonification": {
     "method": "stochastic_psd",
     "low_frequency_attenuation_db": 12,
     "flat_extrapolation_bins": 4,
     "noise_rejection_sigma": 3
-  }
+  },
+  "source_links": [
+    {
+      "label": "Homan et al. (2020)",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020ApJ...891L..29H/abstract"
+    },
+    {
+      "label": "Wood et al. (2021)",
+      "url": "https://ui.adsabs.harvard.edu/abs/2021MNRAS.505.3393W/abstract"
+    },
+    {
+      "label": "Bright et al. (2020)",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020NatAs...4..697B/abstract"
+    },
+    {
+      "label": "Espinasse et al. (2020)",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020ApJ...895L..31E/abstract"
+    }
+  ]
 }
