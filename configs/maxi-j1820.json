@@ -61,7 +61,8 @@
   ],
   "sources": [
     "Homan et al. (2020), ApJL 891 L29",
-    "Wood et al. (2021), jet-ejection and radio-flare times"
+    "Wood et al. (2021), jet-ejection and radio-flare times",
+    "Bright et al. (2020)"
   ],
   "sonification": {
     "method": "stochastic_psd",

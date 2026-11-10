@@ -12,7 +12,7 @@ export function ejectaState(age, type='slow', inclinationDegrees=30) {
     flash:Math.exp(-age/(fast?.28:.18)),trailFraction:fast?.36:.26};
 }
 
-export function drawEjecta(ctx, {age,type,inclinationDegrees,orientationDegrees=-35,centreX,centreY,outerRadiusPixels,footprintRadiusPixels,clip}) {
+export function drawEjecta(ctx, {age,type,inclinationDegrees,orientationDegrees=55,centreX,centreY,outerRadiusPixels,footprintRadiusPixels,clip}) {
   const state=ejectaState(age,type,inclinationDegrees);
   if(!state)return;
   const {fast,fade,flash,trailFraction,phase}=state;

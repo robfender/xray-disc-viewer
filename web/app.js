@@ -16,7 +16,7 @@ if(ui.events.checked){for(const e of data.events){const ex=eventPosition(e,ui.ti
 ctx.strokeStyle='#ee6b72';ctx.beginPath();ctx.moveTo(left+pw*progress,top);ctx.lineTo(left+pw*progress,top+ph);ctx.stroke();}
 function drawDisc(state,target=ui.disc){const mode=ui.timeline.value,m=data.modes[mode],model=data.model,f=data.disc_frequencies,power=m.disc_power[state.index],values=power.map(v=>brightness(v,model)),duration=+ui.duration.value;const time=mode==='elapsed'?state.index/Math.max(m.times.length-1,1)*duration:progress*duration,phases=f.map(v=>ui.rotation.checked?v/(2*Math.PI*model.alpha*model.h_over_r**2)*time*model.rotation_fraction*A:0);const pixels=image.data;for(let i=0;i<N*N;i++){const r=geometry.radial[i],offset=i*4;pixels[offset+3]=255;if(r<0){pixels[offset]=pixels[offset+1]=pixels[offset+2]=0;continue;}const a=Math.floor(r),b=Math.min(a+1,f.length-1),mix=r-a;let value=values[a]*(1-mix)+values[b]*mix;if(ui.structure.checked){const sample=row=>{const angle=((geometry.angle[i]-phases[row])%A+A)%A,k=Math.floor(angle),fract=angle-k;return texture[row*A+k]*(1-fract)+texture[row*A+(k+1)%A]*fract;};value*=clamp(1+model.azimuthal_variation*(sample(a)*(1-mix)+sample(b)*mix),0,2);}const ci=Math.round(clamp(value)*255)*3;pixels[offset]=colors[ci];pixels[offset+1]=colors[ci+1];pixels[offset+2]=colors[ci+2];}rasterCtx.putImageData(image,0,0);
 const {ctx,w,h}=setupCanvas(target),s=style(),pad=50,size=Math.min(w-pad-12,h-pad-36),x=pad+(w-pad-12-size)/2,y=30,centreX=x+size/2,centreY=y+size/2,scale=size/(2*geometry.extent);
-const inclination=30,orientation=-35,angle=orientation*Math.PI/180,foreshortening=Math.cos(inclination*Math.PI/180);
+const inclination=30,orientation=55,angle=orientation*Math.PI/180,foreshortening=Math.cos(inclination*Math.PI/180);
 ctx.fillStyle=s.bg;ctx.fillRect(0,0,w,h);ctx.fillStyle='#000';ctx.fillRect(x,y,size,size);
 ctx.save();ctx.beginPath();ctx.rect(x,y,size,size);ctx.clip();ctx.translate(centreX,centreY);ctx.rotate(angle);ctx.scale(1,foreshortening);ctx.drawImage(raster,-size/2,-size/2,size,size);ctx.restore();
 ctx.strokeStyle=s.muted;ctx.lineWidth=1;ctx.strokeRect(x,y,size,size);ctx.font='12px system-ui';ctx.fillStyle=s.fg;
@@ -44,6 +44,7 @@ async function ensureAudio(){
   } catch(error) {await context.close();throw error;}
 }
 function updateAudio(state){
+  showAudioStatus();
   if(!audio)return;
   const now=audio.currentTime,enabled=playing&&ui.sound.checked&&!document.hidden;
   master.gain.setTargetAtTime(enabled?+ui.volume.value:0,now,.025);
@@ -56,6 +57,7 @@ function updateAudio(state){
 }
 function showAudioStatus(){
   if(!ui.sound.checked){ui['audio-status'].textContent='Sound off';return;}
+  if(!audio){ui['audio-status'].textContent='Sound enabled — press Play to listen.';return;}
   const prefix=playing?'Playing':'Paused';
   if(!appliedAudio||appliedAudio.requestId!==audioKey){ui['audio-status'].textContent=`${prefix} · updating audio settings…`;return;}
   const options=appliedAudio.options;
@@ -87,8 +89,7 @@ ui.download.onclick=async()=>{
         'Images derived from the X-ray power spectrum under the simplified assumption that frequencies correspond to viscous timescales.',
         'r(ν) = r_g [α(H/R)² / (ν t_g)]^(2/3),  t_g = GM/c³.',
         `M = ${m.mass_solar} M☉; α = ${m.alpha}; H/R = ${m.h_over_r}. The dotted ellipse marks 2 R_G in the disc plane.`,
-        'Stochastic azimuthal structure is added for aesthetic reasons; unlike the radii of emission, it is not inferred from the data.',
-        'Rotation is illustrative and set at 0.01% of the local Keplerian rate. The disc is tilted 30° from face-on at an oblique orientation. Ejecta launch from a region wider than the 2 R_G marker. Radio-map-inspired white/yellow/orange/red knots illustrate launch times; jet motion and brightness are not to the disc radius scale.',
+        'The disc is tilted 30° from face-on at an oblique orientation. Ejecta launch from a region wider than the 2 R_G marker. Radio-map-inspired white/yellow/orange/red knots illustrate launch times; jet motion and brightness are not to the disc radius scale.',
         ui.sound.checked?'Audio: stochastic PSD-shaped noise, shifted 64×. Noise rejection may suppress weak real variability. One fixed gain; no separate QPO boost.':'Sound is disabled for this export.',
         data.sources.join(' · ')
       ]});
